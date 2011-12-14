@@ -29,9 +29,12 @@ sub configure {
     my ($self) = @_;
 
     $self->add_plugins(
-        qw(
-          GatherDir
-          )
+        [
+            GatherDir => {
+                exclude_match    => 'test',
+                exclude_filename => 'build.pl',
+            }
+        ],
     );
 }
 
