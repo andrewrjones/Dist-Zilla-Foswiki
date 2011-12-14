@@ -32,7 +32,7 @@ sub configure {
         [
             GatherDir => {
                 exclude_match    => 'test',
-                exclude_filename => 'build.pl',
+                exclude_filename => [ 'build.pl', 'dist.ini' ],
             }
         ],
     );
