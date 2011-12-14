@@ -24,16 +24,26 @@ my $tzil = Builder->from_config(
 
 $tzil->build;
 
+my @files = map { ; $_->name } @{ $tzil->files };
+
 my $manifest =
   $tzil->slurp_file('build/lib/Foswiki/Plugins/InterwikiPlugin/MANIFEST');
 
-my $expected = <<'HERE';
-lib/Foswiki/Plugins/InterwikiPlugin.pm 416
-data/System/InterwikiPlugin.txt 416
-data/System/InterWikis.txt 416
-lib/Foswiki/Plugins/InterwikiPlugin/MANIFEST 420
-HERE
+my %in_manifest;
+for my $line ( split /\n/, $manifest ) {
+    $line =~ /^(.*) (\d\d\d) ?(.*)/;
+    my $path = $1;
+    my $mode = $2;
+    my $desc = $3;
 
-is( $manifest, $expected, 'manifest is correct' );
+    ok( $path, 'each manifest line has a path' );
+    ok( $mode, 'each manifest line has a mode' );
+
+    $in_manifest{$path} = $mode;
+}
+
+my $count = grep { $in_manifest{$_} } @files;
+ok( $count == @files,             "all files found were in manifest" );
+ok( keys(%in_manifest) == @files, "all files in manifest were on disk" );
 
 done_testing;
