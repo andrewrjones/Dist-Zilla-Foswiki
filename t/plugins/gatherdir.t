@@ -17,8 +17,6 @@ my $tzil = Builder->from_config(
                         exclude_filename => [ 'build.pl', 'dist.ini' ],
                     }
                 ],
-
-                #'Manifest', # might use Foswiki::AutoManifest here
             ),
         },
     },
@@ -53,7 +51,7 @@ $tzil = Builder->from_config(
                     }
                 ],
 
-                #'Manifest', # might use Foswiki::AutoManifest here
+                'Foswiki::Manifest',
             ),
         },
     },
@@ -67,12 +65,22 @@ is_filelist(
     [@files],
     [
         qw(
+          lib/Foswiki/Plugins/InterwikiPlugin/MANIFEST
           lib/Foswiki/Plugins/InterwikiPlugin.pm
           data/System/InterwikiPlugin.txt data/System/InterWikis.txt
           )
     ],
     "GatherDir gathers all files in the source dir",
 );
+
+my $manifest =
+  $tzil->slurp_file('build/lib/Foswiki/Plugins/InterwikiPlugin/MANIFEST');
+my %in_manifest = map { ; chomp; $_ => 1 } grep { length } split / \d\d\d\n/,
+  $manifest;
+
+my $count = grep { $in_manifest{$_} } @files;
+ok( $count == @files,             "all files found were in manifest" );
+ok( keys(%in_manifest) == @files, "all files in manifest were on disk" );
 
 done_testing;
 
